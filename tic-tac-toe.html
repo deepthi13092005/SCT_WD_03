@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Tic Tac Toe</title>
+  <style>
+    body {font-family:sans-serif;text-align:center;background:#f9f9f9;padding:20px;}
+    .board {display:grid;grid-template-columns:repeat(3,80px);gap:8px;justify-content:center;margin:20px auto;}
+    .cell {width:80px;height:80px;font-size:2rem;display:flex;align-items:center;justify-content:center;
+      background:#fff;border-radius:8px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,0.2);}
+    .cell.win {background:#aaffc6;}
+    .score, .msg {margin:10px;}
+    button {padding:6px 12px;margin-top:10px;cursor:pointer;}
+  </style>
+</head>
+<body>
+  <h2>Tic Tac Toe</h2>
+  <div class="score">
+    ❌ X: <span id="x">0</span> ⭕ O: <span id="o">0</span> 🤝 Draws: <span id="d">0</span>
+  </div>
+  <button onclick="vsAI^=1;reset()">Mode: <span id='mode'>2P</span></button>
+  <div class="board" id="b"></div>
+  <div class="msg" id="m">Player X's turn</div>
+  <button onclick="reset()">Restart</button>
+
+  <audio id="click" src="https://www.fesliyanstudios.com/play-mp3/387"></audio>
+  <audio id="win" src="https://www.fesliyanstudios.com/play-mp3/6678"></audio>
+
+  <script>
+    let board=[], cur='X', win=false, vsAI=0, x=0, o=0, d=0, b=document.getElementById('b'),
+    m=document.getElementById('m'), mode=document.getElementById('mode'), cS=document.getElementById('click'),
+    wS=document.getElementById('win'), xS=document.getElementById('x'), oS=document.getElementById('o'), dS=document.getElementById('d');
+    const W=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+    
+    function draw() {
+      b.innerHTML='';
+      board.forEach((v,i)=>{
+        let e=document.createElement('div');
+        e.className='cell'+(v?' taken':'');
+        e.textContent=v||'';
+        e.onclick=()=>move(i);
+        b.appendChild(e);
+      });
+    }
+
+    function move(i){
+      if(win||board[i])return;
+      board[i]=cur;cS.play();draw();
+      if(check()){wS.play();m.textContent=`🎉 ${cur} wins!`;updateScore(cur);win=true;return;}
+      if(board.every(Boolean)){m.textContent=`It's a draw`;dS.textContent=++d;win=true;return;}
+      cur=cur=='X'?'O':'X';m.textContent=`Player ${cur}'s turn`;
+      if(vsAI&&cur=='O')setTimeout(()=>move([...(board.entries())].filter(([i,v])=>!v).map(([i])=>i)[Math.floor(Math.random()*board.filter(v=>!v).length)]),300);
+    }
+
+    function check(){
+      return W.some(p=>p.every(i=>board[i]==cur)&&(p.forEach(i=>b.children[i].classList.add('win')),1));
+    }
+
+    function updateScore(p){p=='X'?xS.textContent=++x:oS.textContent=++o;}
+
+    function reset(){
+      board=Array(9).fill(null);cur='X';win=false;m.textContent=`Player X's turn`;mode.textContent=vsAI?'vs AI':'2P';draw();
+    }
+
+    reset();
+  </script>
+</body>
+</html>
